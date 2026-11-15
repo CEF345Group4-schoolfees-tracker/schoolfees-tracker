@@ -6,12 +6,12 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 0.2 | 2026-11-15 | Complete draft: full requirement set (FR-01 to FR-16, NFR-01 to NFR-08), MoSCoW table, design decisions (§10), pruned Open Questions (§9), references. Requirement IDs and MoSCoW priorities unchanged throughout. |
+| 0.2 | 2026-11-15 | Complete draft: full requirement set (FR-01 to FR-16, NFR-01 to NFR-08), MoSCoW table, design decisions (§10), references. Revised 2026-11-15: OQ-1 resolved as DD-24 (balances start at zero; record import out of scope); DD-25 to DD-28 consistency fixes; section 5 use cases added (diagram and UC-01 to UC-03); DD-29 payer confirmation screen (UC-02); UC-03 alternative flow 3a rewritten as user-visible behaviour and 4a removed (covered by FR-09.3). Requirement IDs and MoSCoW priorities unchanged throughout. |
 
 Conventions:
 
 - The requirement text is written to be specific and testable, following ISO/IEC/IEEE 29148 ("shall" statements, measurable criteria). **IDs and MoSCoW priorities are unchanged from the approved requirement list.** No requirement was silently added, removed, or re-scoped.
-- Points decided after review are recorded in **Design decisions** (§10) and referenced as *(DD-n)*. The single item still awaiting school input is in **Open questions** (§9) and referenced as *(OQ-n)*. Nothing else is outstanding.
+- Points decided after review are recorded in **Design decisions** (§10) and referenced as *(DD-n)*. No open questions remain as of this revision (§9).
 - Verification methods: **T** = test, **D** = demonstration, **I** = inspection, **A** = analysis.
 
 ---
@@ -39,7 +39,7 @@ All monetary amounts are in **XAF** (Central African CFA franc), the sole curren
 
 The following are **explicitly out of scope** (see §7): SMS notifications, parent self-service accounts, payroll, exam results, inventory.
 
-Evidence base for this specification is **secondary desk research only** (see `docs/field-notes/secondary-research.md`); no school visit or interview was performed. Remaining uncertainty is collected in **Open questions** (§9).
+Evidence base for this specification is **secondary desk research only** (see `docs/field-notes/secondary-research.md`); no school visit or interview was performed. No open questions remain as of this revision (§9).
 
 ### 1.3 Definitions, acronyms and abbreviations
 
@@ -73,7 +73,7 @@ See §8.
 
 ### 2.1 Product perspective
 
-The School Fees Tracker is a new, standalone responsive web application (greenfield; assumed not to replace an existing production system, see OQ-1). It does not hold payer funds or act as an e-money issuer; online payments flow through licensed MTN MoMo / Orange Money rails, directly or via a licensed aggregator (see Constraints, §2.6). It coexists with the school's existing manual processes, which it replaces for fee recording only.
+The School Fees Tracker is a new, standalone responsive web application. It is greenfield as decided: every pupil's balance starts at zero at launch and importing existing paper or Excel records is out of scope for v1 (DD-24). It does not hold payer funds or act as an e-money issuer; online payments flow through licensed MTN MoMo / Orange Money rails, directly or via a licensed aggregator (see Constraints, §2.6). It coexists with the school's existing manual processes, which it replaces for fee recording only.
 
 Context (actors and external systems):
 
@@ -130,7 +130,7 @@ Context (actors and external systems):
 - **C-6. Configurable fees, never constants:** fee amounts, classes per academic year and academic-year boundaries change annually and by class; they must be configuration data entered by authorised staff (FR-03), never hard-coded.
 - **C-7. Fee scale and part-payments:** desk research indicates annual local private fees on the order of a few hundred thousand XAF with part-payments common; the data model and balance computation must support part-payments (FR-04, FR-05) and per-academic-year fee assignment (FR-03). There is no fixed instalment schedule in v1 (DD-02).
 - **C-8. Network realities:** both staff and payers may rely on mobile data; online confirmation depends on provider latency and availability, so FR-14/FR-15/FR-16 must tolerate delayed, duplicated or out-of-order provider notifications.
-- **C-9. No primary evidence:** all requirements rest on desk research and the approved requirement list; no school-specific practice is assumed as fact (see Assumptions and Open questions).
+- **C-9. No primary evidence:** all requirements rest on desk research and the approved requirement list; no school-specific practice is assumed as fact (see Assumptions, §2.7, and Design decisions, §10).
 - **C-10. Public repository:** the source repository is public; secrets must never be committed (reinforced by NFR-06).
 
 **Technical/project constraints:**
@@ -154,15 +154,16 @@ Context (actors and external systems):
 
 ## 3. Functional Requirements
 
-Each requirement keeps the source ID and MoSCoW priority. Statements are written with ISO/IEC/IEEE 29148-style "shall" wording and measurable acceptance criteria. Decisions applied during review are referenced as *(DD-n)*; the remaining question is referenced as *(OQ-n)*.
+Each requirement keeps the source ID and MoSCoW priority. Statements are written with ISO/IEC/IEEE 29148-style "shall" wording and measurable acceptance criteria. Decisions applied during review are referenced as *(DD-n)*; no open questions remain (§9).
 
 ### FR-01: Pupil registration (Priority: Must; Verification: T)
 
-**FR-01.1** The system shall provide a pupil registration function capturing at minimum: pupil full name, admission number, class, guardian full name, and guardian phone number.
+**FR-01.1** The system shall provide a pupil registration function capturing at minimum: pupil full name, admission number, class, guardian full name, guardian phone number, and **enrolment date**. The enrolment date shall default to the registration date and shall be editable by authorised staff. (DD-25)
 **FR-01.2** The system shall reject registration when the admission number already exists for the school; the duplicate admission number shall not be stored and an explanatory error shall be shown.
-**FR-01.3** The system shall reject registration when any of the five fields is missing or blank.
+**FR-01.3** The system shall reject registration when any of the six fields is missing or blank.
 **FR-01.4** The guardian phone number shall be stored in international format with an optional leading `+`, 8 to 15 digits; a leading `+` and country code are required for new entries, and `+237` is assumed when the number is entered without a country code; invalid input shall be rejected with an explanatory message. (DD-09)
-**Acceptance:** registering "Ada Lovelace / ADM-001 / Class 3 / guardian 'Grace Lovelace' / +237612345678" succeeds and the record is retrievable; re-registering ADM-001 fails with a duplicate-admission-number error; entering phone "abc" is rejected.
+**FR-01.5** Authorised staff shall be able to change a pupil's class (for example at the start of a new academic year). Payment history shall be preserved unchanged, and each academic year's balance shall use the class assigned to the pupil in that academic year. (DD-26)
+**Acceptance:** registering "Ada Lovelace / ADM-001 / Class 3 / guardian 'Grace Lovelace' / +237612345678 / enrolment date 2026-09-07" succeeds and the record is retrievable; re-registering ADM-001 fails with a duplicate-admission-number error; entering phone "abc" is rejected; leaving the enrolment date blank stores today's date; changing the pupil's class to Class 4 for 2027/2028 preserves all payment history and shows the 2027/2028 balance against Class 4's fee.
 
 ### FR-02: Class management (Priority: Must; Verification: T, D)
 
@@ -192,7 +193,7 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 
 ### FR-05: Balance calculation (Priority: Must; Verification: T)
 
-**FR-05.1** For each pupil and academic year, the system shall compute: outstanding balance = configured fee for the pupil's class for that academic year (FR-03) minus the sum of amounts of all recorded successful payments for that pupil in that academic year.
+**FR-05.1** For each pupil and academic year, the system shall compute: outstanding balance = configured fee for the class assigned to the pupil in that academic year (FR-03, FR-01.5) minus the sum of amounts of all recorded successful payments for that pupil in that academic year.
 **FR-05.2** The balance shall be recomputed and persisted-or-derived consistently after every recorded payment (manual FR-04, online FR-14) and after any correction (FR-12); displayed values shall never disagree with the underlying records by more than the current transaction.
 **FR-05.3** The balance is never negative; overpayment is rejected at entry (FR-04.2, FR-13.2). (DD-03)
 **FR-05.4** The balance is per pupil per academic year. There is no carry-over of unpaid balances into the next academic year in v1; a new year's balance starts from the new configured fee. (DD-04)
@@ -243,10 +244,10 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 
 ### FR-12: Audit logging (Priority: Should; Verification: T, I)
 
-**FR-12.1** The system shall write an audit log entry for every payment **creation** and every **correction** of a payment record, capturing at minimum: performing user identity, timestamp, pupil, payment/receipt reference, amount before and after (for corrections), and a mandatory reason for the correction. (DD-17)
+**FR-12.1** The system shall write an audit log entry for each of the following event types: (a) every payment **creation**; (b) every **correction** of a payment record; (c) every fee configuration change made after at least one payment exists (FR-03.3); (d) every re-match of an online payment (FR-16.4). Each entry captures at minimum: performing user identity, timestamp, event type, and event-specific details. For (a) and (b): pupil, payment/receipt reference, amount before and after (for corrections), and a mandatory reason for the correction. For (c): class, academic year, old and new amounts. For (d): online payment reference, previous pupil (or none) and the new pupil. (DD-17, DD-27)
 **FR-12.2** Audit log entries shall be append-only (no edit/delete via the UI or API) and visible to Administrators only. (DD-17)
 **FR-12.3** Only the Bursar may record and correct payments. Corrections are limited to amount, method, date and reference. An upward correction that would exceed the outstanding balance is rejected under the same rule as FR-04.2. (DD-07, DD-17, DD-03)
-**Acceptance:** create a payment as bursar; correct the amount from 100,000 to 120,000 with a mandatory reason; the log shows two entries (creation, correction) with user identity, timestamp, before/after amounts and the reason; an Administrator can view the log but a Bursar cannot; no log entry can be edited or deleted via the UI; an upward correction that would exceed the balance is rejected.
+**Acceptance:** create a payment as bursar; correct the amount from 100,000 to 120,000 with a mandatory reason; the log shows two entries (types (a) and (b)) with user identity, timestamp, before/after amounts and the reason; an Administrator can view the log but a Bursar cannot; no log entry can be edited or deleted via the UI; an upward correction that would exceed the balance is rejected; after a payment exists, a fee change for that class and year writes a type (c) entry; re-matching an unmatched online payment writes a type (d) entry.
 
 ### FR-13: Online payment initiation (Priority: Must; Verification: T, D)
 
@@ -267,13 +268,13 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 ### FR-15: Failure, cancellation and duplicates (Priority: Must; Verification: T)
 
 **FR-15.1** Online payments reported as **failed**, **cancelled**, or **expired**, and any **duplicate** confirmations, shall not change any pupil balance, under any interleaving of events.
-**FR-15.2** Each such event shall be persisted with its provider status and automatically placed in a **bursar review queue** (flagging shall be automatic). Items queued under FR-14.4 follow the same path.
-**FR-15.3** The Bursar shall be able to mark a queued item as reviewed (with an optional note); review disposition shall not itself move money. Where an item needs a pupil assignment, the Bursar uses the re-match function (FR-16.3).
+**FR-15.2** Each such event shall be persisted with its provider status and automatically placed in a **bursar review queue** (flagging shall be automatic). Items queued under FR-14.4 follow the same path. The Administrator may view the review queue; only the Bursar may review, match or disposition items. (DD-28)
+**FR-15.3** The Bursar shall be able to mark a queued item as reviewed (with an optional note); review disposition shall not itself move money. Where an item needs a pupil assignment, the Bursar uses the re-match function (FR-16.3). (DD-28)
 **Acceptance:** callbacks for failure/cancel/duplicate/overpayment-at-confirmation leave balances unchanged; each appears in the review queue with the provider payload stored.
 
 ### FR-16: Online payment status and matching (Priority: Must; Verification: T)
 
-**FR-16.1** The Bursar shall be able to view a list of online payments with status (at minimum: initiated, confirmed, failed, cancelled/expired, and any exception states from FR-15), filterable/sortable by date and status.
+**FR-16.1** The Bursar shall be able to view a list of online payments with status (at minimum: initiated, confirmed, failed, cancelled/expired, and any exception states from FR-15), filterable/sortable by date and status. The Administrator may view the same list but shall not match payments. (DD-28)
 **FR-16.2** Each record shall show: provider transaction reference, amount, pupil (if matched), guardian contact, timestamps, and provider status.
 **FR-16.3** The Bursar shall be able to **re-match** an online payment to a pupil when automatic attribution failed or was wrong (e.g., wrong admission number entered by the payer): selecting the correct pupil shall associate the payment with that pupil. If the payment is confirmed, recording shall then follow FR-14 semantics (recorded once, balance updated, receipt generated), subject to the overpayment rule (FR-14.4). (DD-06)
 **FR-16.4** Every re-match shall be audit-logged (FR-12). (DD-06)
@@ -293,7 +294,7 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 ### NFR-02: Role-based access control (Priority: Must; Verification: T)
 
 **NFR-02.1** The system shall enforce RBAC server-side with exactly two staff roles: **Administrator** and **Bursar**.
-**NFR-02.2** Minimum permission matrix (derived from FRs and decisions DD-01/DD-07/DD-17; changes require change control):
+**NFR-02.2** Minimum permission matrix (derived from FRs and decisions DD-01/DD-07/DD-17/DD-28; changes require change control):
 
 | Function | Administrator | Bursar |
 |---|:-:|:-:|
@@ -302,7 +303,7 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 | Configure fees (FR-03) | ✔ | ✔ |
 | Record manual payments (FR-04) | ✘ (view only) | ✔ |
 | Create/manage users and roles (FR-11) | ✔ | ✘ |
-| Review queue (FR-15); match online payments to pupils (FR-16) | ✔ (view + review note only) | ✔ (view + match/review) |
+| Review queue (FR-15); match online payments to pupils (FR-16) | ✔ (view only; cannot review or match) | ✔ (view + match/review) |
 | View audit log (FR-12.2) | ✔ | ✘ |
 
 **NFR-02.3** Any request for a function not permitted to the caller's role shall be denied with no side effects.
@@ -348,7 +349,101 @@ Each requirement keeps the source ID and MoSCoW priority. Statements are written
 
 ## 5. Use Cases
 
-**To be added in the next revision** (use case diagram at `docs/diagrams/usecases.drawio.svg` and detailed descriptions for the online payment and manual payment scenarios are planned as follow-up work).
+The diagram below is embedded in this document and links to the editable source. Requirements are not changed by this section; use cases only describe how the requirements interact. Alternative flows are numbered to reference their main-flow step (e.g., 2a, 5a).
+
+![Use case diagram: School Fees Tracker](diagrams/usecases.drawio.svg)
+
+*Editable source: [`docs/diagrams/usecases.drawio`](diagrams/usecases.drawio). Drawing follows the RBAC decisions in the SRS (DD-01, DD-07, DD-17, DD-28 and the NFR-02 matrix): both staff roles configure fees and view records, but only the Bursar records, corrects, reviews and matches payments; the Administrator's link to Review online payments is view-only.*
+
+**UC-01: Record manual payment**
+
+- **ID:** UC-01
+- **Name:** Record manual payment
+- **Actors:** Bursar (primary). The Administrator may view recorded payments but cannot record them (DD-07, NFR-02).
+- **Preconditions:**
+  1. The Bursar is authenticated with the Bursar role (NFR-01, NFR-02).
+  2. The pupil is registered (FR-01) with a class assigned for the academic year (FR-01.5).
+  3. A fee is configured for that class and academic year (FR-03).
+  4. The pupil's outstanding balance for the academic year is known (FR-05).
+- **Main flow:**
+  1. The Bursar selects "Record payment" and looks up the pupil by name or admission number (FR-01, FR-10).
+  2. The system displays the pupil's details and current outstanding balance for the academic year (FR-05, FR-07).
+  3. The Bursar enters: amount paid, method (exactly one of cash, bank transfer, Mobile Money), date of payment, and a payment reference (FR-04.1).
+  4. The system validates the input: amount not greater than the outstanding balance (FR-04.2, DD-03); payment date on or after the enrolment date and not later than today (FR-04.3, DD-11); reference mandatory for bank transfer and Mobile Money, auto-generated from the receipt number for cash if not supplied (FR-04.4, DD-11); no mandatory field blank (FR-04.1).
+  5. The system atomically commits the payment, updates the balance and writes audit log entry type (a) (NFR-04, FR-04.5, FR-05.2, FR-12.1).
+  6. The system assigns a unique receipt number and displays the receipt in a print-friendly layout (FR-06, DD-12).
+- **Alternative flows:**
+  - **2a.** Pupil not found: an explanatory message is shown; nothing is recorded; the flow returns to step 1 (FR-01, FR-10).
+  - **3a.** Payment method is cash and no reference is supplied: the system auto-generates the reference from the receipt number (FR-04.4, DD-11).
+  - **4a.** Amount is greater than the outstanding balance: an error message is shown and nothing is recorded (FR-04.2, DD-03).
+  - **4b.** Payment date is before the enrolment date or later than today: validation error; nothing is recorded (FR-04.3, DD-11).
+  - **4c.** Bank transfer or Mobile Money payment is entered without a reference: validation error; nothing is recorded (FR-04.4).
+  - **5a.** Any failure during the commit (rule violation, crash, database error, duplicate) leaves the database unchanged; an error is shown (NFR-04).
+  - **6a.** A correction is requested after the fact: only the Bursar may correct, with a mandatory reason; corrections are limited to amount, method, date and reference; an upward correction that would exceed the balance is rejected (FR-12.1, FR-12.3, DD-03).
+- **Postconditions:**
+  - The payment is recorded and visible in the pupil's history and in filtered lists (FR-07, FR-10).
+  - The outstanding balance is reduced by the amount paid (FR-05).
+  - A receipt number is assigned and displayed (FR-06, DD-12).
+  - An audit log entry of type (a) exists with the Bursar's identity and timestamp (FR-12.1).
+- **Requirements covered:** FR-01, FR-03, FR-04, FR-05, FR-06, FR-07, FR-10, FR-12, NFR-01, NFR-02, NFR-03, NFR-04, NFR-08
+
+**UC-02: Pay fees online**
+
+- **ID:** UC-02
+- **Name:** Pay fees online
+- **Actors:** Payer (parent/guardian; initiates and authorises), Mobile Money Provider (MTN MoMo or Orange Money; secondary system, confirms). Staff are not required for this use case; the Bursar becomes involved only for exception handling (UC review, FR-15/FR-16).
+- **Preconditions:**
+  1. The pupil is registered (FR-01).
+  2. The pupil's outstanding balance for the academic year is greater than zero (FR-05, DD-24).
+  3. The payer knows the pupil's admission number and the guardian phone number (FR-13.2, DD-05).
+  4. The payer has a Mobile Money wallet (MTN MoMo or Orange Money); the payment page is reachable over HTTPS (FR-13.1, NFR-06.1).
+- **Main flow:**
+  1. The payer opens the public payment page (FR-13.1, NFR-06.1).
+  2. The payer enters the admission number and guardian phone number (FR-13.2, DD-05).
+  3. The system verifies the pair and shows the pupil's name, class and outstanding balance, with the outstanding balance as the default amount (FR-13.2, DD-05).
+  4. The payer confirms or adjusts the amount (any amount up to and including the outstanding balance) and chooses the operator (FR-13.2, DD-05).
+  5. The system creates an online payment in status **initiated** with a unique provider transaction reference (FR-13.3).
+  6. The payer completes authorisation on their phone (PIN/USSD, handled only by the provider; never by this system) (FR-13.3, NFR-06.2).
+  7. The provider sends a confirmation. The system verifies callback authenticity (FR-14.3, NFR-06.4) and checks the confirmed amount matches the initiated amount (NFR-06.4).
+  8. On successful, authentic, non-overpaying confirmation, the system atomically records the payment, updates the balance, assigns a receipt number and marks the payment confirmed (FR-14.1, FR-14.2, NFR-04, FR-05, FR-06).
+  9. The system displays an on-screen confirmation showing the pupil's name, the amount paid and the receipt number, and nothing else (DD-29); the payment appears in the Bursar's online payment list (FR-16.1).
+- **Alternative flows:**
+  - **3a.** Admission number and phone number do not match a pupil: an error is shown; no other data is disclosed (FR-13.2, FR-13.4).
+  - **4a.** The entered amount is greater than the outstanding balance: an error message is shown; the initiation is refused; nothing is recorded (FR-13.2, DD-03).
+  - **6a.** The payer cancels, or authorisation fails or expires: the provider reports failure or cancellation; the balance is unchanged; the event is persisted and placed in the bursar review queue (FR-15.1, FR-15.2).
+  - **7a.** Callback authenticity cannot be verified: the callback is rejected; no state changes (FR-14.3, NFR-06.4).
+  - **7b.** A duplicate delivery of the same provider confirmation arrives: it has no additional effect; no second payment or receipt is created (FR-14.2).
+  - **7c.** Applying the confirmed amount would leave the balance negative (for example, the balance shrank after initiation): the payment is not recorded and the balance is unchanged; the payment is placed in the bursar review queue with the reason "overpayment at confirmation" (FR-14.4, DD-03).
+  - **7d.** The confirmed payment cannot be attributed to a pupil automatically: the payment is queued for the Bursar to re-match; a re-match is logged with the Bursar's identity and reason (FR-16.3, FR-16.4, FR-12.1 type (d), DD-06).
+  - **7e.** The provider never sends a terminal status: the payment remains **initiated**; the Bursar sees it in the status list and it is not recorded until a valid confirmation arrives (FR-16.1, FR-14.1).
+- **Postconditions:**
+  - On success: the payment is recorded against the pupil, the balance is updated, a receipt is generated, and the payment is visible to the Bursar (FR-14.1, FR-05, FR-06, FR-16.1).
+  - On failure, cancellation, duplicate or overpayment: the balance is unchanged; the event is persisted and flagged in the bursar review queue (FR-15.1, FR-15.2).
+  - Every re-match is audit-logged with the Bursar's identity and timestamp (FR-12.1(d), DD-06).
+- **Requirements covered:** FR-05, FR-06, FR-12, FR-13, FR-14, FR-15, FR-16, NFR-04, NFR-05, NFR-06
+
+**UC-03: Generate financial report**
+
+- **ID:** UC-03
+- **Name:** Generate financial report
+- **Actors:** Administrator and Bursar (both may generate and view reports, DD-01, NFR-02).
+- **Preconditions:**
+  1. The user is authenticated with either staff role (NFR-01, NFR-02).
+  2. Fees are configured for at least one class and academic year (FR-03); pupils are enrolled (FR-01); balances start at zero at launch (DD-24).
+- **Main flow:**
+  1. The user selects "Generate report", an academic year and, optionally, a class filter (FR-09).
+  2. The system computes: (a) **fees expected** (current enrolment multiplied by the current fee configuration for the selected year and class); (b) **payments received** (sum of successful payment amounts in the selected period); (c) **outstanding balances** ((a) minus (b)), with per-pupil detail (FR-09.1, DD-23, FR-05).
+  3. The system displays the report on screen within the NFR-03 performance bound, in a print-friendly layout (FR-09.2, DD-15, NFR-03, NFR-05).
+  4. The figures reconcile exactly with the recorded payments (FR-09.3).
+- **Alternative flows:**
+  - **1a.** No fee configuration exists for the selected year and class: expected fees are zero; the report displays zero expected, actual payments received, and zero outstanding, with an empty per-pupil balance table (FR-09.1, DD-23).
+  - **2a.** A class filter is applied: the report is computed for the selected class only (FR-09, FR-10).
+  - **3a.** Report generation approaches or exceeds the NFR-03 bound (p95 under 3 seconds at 1,000 pupils): the system still completes and displays the report normally; the overrun is logged as a performance observation for the development team to investigate. NFR-03 is a measured target, not a runtime error, and the user sees no error message.
+  - **5a.** The user requests PDF, Excel or CSV export, or scheduled delivery: refused; out of scope for v1 (DD-15).
+- **Postconditions:**
+  - The report is shown on screen in a printable layout; no payment data or balances are changed by generating a report (FR-09).
+  - Per-pupil outstanding detail is consistent with FR-05 balances and FR-08's identification of pupils with non-zero balances.
+- **Requirements covered:** FR-03, FR-05, FR-08, FR-09, FR-10, NFR-02, NFR-03, NFR-05
 
 ---
 
@@ -392,6 +487,7 @@ Explicitly out of scope for this revision (per the approved scope decision):
 3. **Payroll** for teaching/non-teaching staff.
 4. **Exam results** and academic-record management.
 5. **Inventory** (uniforms, books, supplies stock).
+6. **Importing existing paper or Excel payment records** into the system (every pupil balance starts at zero at launch, DD-24).
 
 Additionally, the following follow from project decisions and desk research (not to be added without a change request): card payments and any storage of card data (NFR-06.2); the system acting as an e-money issuer or holding payer funds (C-3); roles beyond Administrator and Bursar (C-11); multi-school/multi-tenant operation (A-5, DD-13); non-XAF currencies (C-1); fixed instalment schedules (DD-02); PDF/Excel export of reports (DD-15) and any account deletion (DD-16).
 
@@ -408,13 +504,11 @@ Additionally, the following follow from project decisions and desk research (not
 
 ## 9. Open Questions
 
-Only questions that genuinely need school or lecturer input are kept. **Final count: 1** (down from 24; eight were answered directly by the product owner, fifteen were resolved with adopted defaults recorded as DD-09 to DD-23; 24 minus 8 minus 15 = 1).
-
-- **OQ-1** Does the school need its existing paper or Excel payment records imported at launch, or does every pupil's balance start from zero (greenfield)?
+None. Every question raised during review has been resolved; all decisions are recorded in §10 (DD-01 to DD-29).
 
 ## 10. Design decisions
 
-DD-01 to DD-08 record the eight high-impact decisions taken by the product owner on 2026-11-15 (resolving the corresponding open questions). DD-09 to DD-23 record the sensible defaults adopted for the remaining open questions. Requirements reference these as *(DD-n)*.
+DD-01 to DD-08 record the eight high-impact decisions taken by the product owner on 2026-11-15 (resolving the corresponding open questions). DD-09 to DD-23 record the sensible defaults adopted for the remaining open questions. DD-24 records the decision on the last open question (balances start at zero at launch). DD-25 to DD-28 record consistency fixes applied during the use case review. DD-29 records the payer confirmation screen decision for online payments. Requirements reference these as *(DD-n)*.
 
 | ID | Decision | Affected requirements |
 |---|---|---|
@@ -441,3 +535,9 @@ DD-01 to DD-08 record the eight high-impact decisions taken by the product owner
 | DD-21 | Daily backups kept for at least 30 days, encrypted, in separate storage; restore procedure documented at `docs/operations/restore.md` (created at implementation time); restore drill each term | NFR-07 |
 | DD-22 | "Trained bursar" means completed the onboarding walkthrough on a test dataset; NFR-08 is verified by a timed task (median under 60s over at least 3 runs) observed by the acceptance-test owner | NFR-08 |
 | DD-23 | "Fees expected" means current enrolment multiplied by the current fee configuration for the selected year and class | FR-09 |
+| DD-24 | Every pupil balance starts at zero at launch; importing existing paper or Excel payment records is out of scope for v1 | §2.1, §7, FR-05, FR-09 |
+| DD-25 | Enrolment date is a captured field at registration; defaults to the registration date and is editable by authorised staff (FR-04.3 and DD-11 depend on it) | FR-01, FR-04, DD-11 |
+| DD-26 | Authorised staff can change a pupil's class (for example at the start of a new academic year); payment history is preserved; each academic year's balance uses the class assigned in that year | FR-01, FR-03, FR-05 |
+| DD-27 | The audit log covers payment creation, payment corrections, fee configuration changes made after payments exist (FR-03.3), and online payment re-matches (FR-16.4); visibility remains Administrator-only | FR-03, FR-12, FR-16 |
+| DD-28 | The Administrator can view the review queue and online payment list but cannot review, match or disposition items; only the Bursar can | FR-15, FR-16, NFR-02 |
+| DD-29 | After a successful online payment, the payer sees an on-screen confirmation showing the pupil name, amount paid and receipt number, and nothing else; no SMS (out of scope) | FR-13, FR-14 |
