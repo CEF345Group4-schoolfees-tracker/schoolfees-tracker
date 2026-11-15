@@ -83,6 +83,7 @@
 
         <mxCell id="p1" value="" style="endArrow=none;html=1;strokeColor=#3a4a5f;strokeWidth=1.7;" edge="1" parent="1" source="actor_payer" target="uc_payonline"><mxGeometry relative="1" as="geometry"/></mxCell>
         <mxCell id="m1" value="" style="endArrow=none;html=1;strokeColor=#3a4a5f;strokeWidth=1.7;" edge="1" parent="1" source="actor_provider" target="uc_confirm"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m2" value="" style="endArrow=none;html=1;strokeColor=#3a4a5f;strokeWidth=1.7;" edge="1" parent="1" source="actor_provider" target="uc_payonline"><mxGeometry relative="1" as="geometry"/></mxCell>
 
         <mxCell id="incl_1" value="«include»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#b45309;strokeWidth=2;endArrow=open;endFill=0;fontSize=11;fontStyle=2;fontColor=#b45309;" edge="1" parent="1" source="uc_manual" target="uc_receipt"><mxGeometry relative="1" as="geometry"/></mxCell>
         <mxCell id="incl_2" value="«include»" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;strokeColor=#b45309;strokeWidth=2;endArrow=open;endFill=0;fontSize=11;fontStyle=2;fontColor=#b45309;" edge="1" parent="1" source="uc_confirm" target="uc_receipt"><mxGeometry relative="1" as="geometry"/></mxCell>

@@ -11,13 +11,13 @@ Where sources disagree, the discrepancy is reported rather than smoothed over. W
 
 ## 1. Education context (Cameroon)
 
-- Cameroon operates a bilingual (French/English) education system. The levels relevant to this project are **pre-primary (nursery/kindergarten, roughly ages 3–5)** and **primary** (a six-year cycle) [2][4].
-- Per World Bank analysis, public schools enroll the majority of primary pupils (about **75–76%**), while **most pre-primary pupils are in the private sector (about 61%)** [1].
+- Cameroon operates a bilingual (French/English) education system. The levels relevant to this project are **pre-primary (nursery/kindergarten, roughly ages 3 to 5)** and **primary** (a six-year cycle) [2][4].
+- Per World Bank analysis, public schools enroll the majority of primary pupils (about **75 to 76%**), while **most pre-primary pupils are in the private sector (about 61%)** [1].
 - Primary enrollment in private schools is roughly a **quarter** of the total: **~26.86% in 2023** (figures compiled from World Bank WDI, via Aubsp) and **~25.34% in 2024** (CEIC, same WDI series) [2][6].
 - Pre-primary gross enrollment ≈ **35.62% (2019)**; primary gross enrollment ≈ **112.64% (2023)** with ≈ **5.16 million primary pupils**; primary completion rate ≈ **71%**, all per Aubsp / World Bank WDI as reported [2][3][4].
 - Fee levels (indicative only, in XAF, **not** audited data for any specific school):
-  - International private primary, Yaoundé: ~**1,016,855 XAF/year** average; range roughly 300,057–2,000,369 XAF/year (combien-coute.net, 2026, self-reported/estimated) [7].
-  - Local private nursery & primary examples in Yaoundé: ~**170,885–228,782 XAF/year** (Grace Dara Nursery and Primary School) and ~**187,233–240,601 XAF/year** (Awae Bilingual Nursery and Primary School), per directory listings [8][9].
+  - International private primary, Yaoundé: ~**1,016,855 XAF/year** average; range roughly 300,057 to 2,000,369 XAF/year (combien-coute.net, 2026, self-reported/estimated) [7].
+  - Local private nursery & primary examples in Yaoundé: ~**170,885 to 228,782 XAF/year** (Grace Dara Nursery and Primary School) and ~**187,233 to 240,601 XAF/year** (Awae Bilingual Nursery and Primary School), per directory listings [8][9].
   - Derived takeaway (an interpretation, not a sourced figure): local private nursery/primary fees run to a few hundred thousand XAF per child per year, often paid in instalments. **Actual fees and instalment rules for the target school are unknown and must be configurable data, not hard-coded constants.**
 
 **Implication for the SRS:** the system must model XAF amounts, academic years, per-class fee structures, instalments and per-student balances, not a single flat fee.
@@ -42,7 +42,7 @@ According to the **2024 Annual Observatory of the Electronic Communications Mark
 ### 3.2 Market structure: two operators dominate (sources disagree on shares)
 
 - National statistics cited in 2019 put the segment at **MTN ~40.7%, Orange ~40.3%**, Afrikpay ~8.5% [11].
-- Recent market commentary (2026, **non-official blog sources**) puts Orange Money at ~52% (≈6.5–6.85M active users) and MTN MoMo at ~45% (≈5.8–5.94M active users), with ~43% adult penetration and ~67,000 agent points [12][13].
+- Recent market commentary (2026, **non-official blog sources**) puts Orange Money at ~52% (≈6.5 to 6.85M active users) and MTN MoMo at ~45% (≈5.8 to 5.94M active users), with ~43% adult penetration and ~67,000 agent points [12][13].
 - CamPay's blog claims roughly **60% MTN / 40% Orange** [14].
 - **Consistent finding across all sources: MTN MoMo and Orange Money together dominate Cameroon's mobile money market.** New entrants (e.g., Wave, Blue Money) are expected, per Business in Cameroon [5].
 - **Implication:** any online payment integration for school fees should cover **both** MTN MoMo and Orange Money; supporting only one excludes a large share of payers.

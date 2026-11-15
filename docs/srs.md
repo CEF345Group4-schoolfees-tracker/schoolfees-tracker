@@ -6,7 +6,7 @@
 
 | Version | Date | Change |
 |---|---|---|
-| 0.2 | 2026-11-15 | Complete draft: full requirement set (FR-01 to FR-16, NFR-01 to NFR-08), MoSCoW table, design decisions (§10), references. Revised 2026-11-15: OQ-1 resolved as DD-24 (balances start at zero; record import out of scope), DD-25 to DD-28 consistency fixes, section 5 use cases added (diagram and UC-01 to UC-03). Requirement IDs and MoSCoW priorities unchanged throughout. |
+| 0.2 | 2026-11-15 | Complete draft: full requirement set (FR-01 to FR-16, NFR-01 to NFR-08), MoSCoW table, design decisions (§10), references. Revised 2026-11-15: OQ-1 resolved as DD-24 (balances start at zero; record import out of scope); DD-25 to DD-28 consistency fixes; section 5 use cases added (diagram and UC-01 to UC-03); DD-29 payer confirmation screen (UC-02); UC-03 alternative flow 3a rewritten as user-visible behaviour and 4a removed (covered by FR-09.3). Requirement IDs and MoSCoW priorities unchanged throughout. |
 
 Conventions:
 
@@ -406,7 +406,7 @@ The diagram below is embedded in this document and links to the editable source.
   6. The payer completes authorisation on their phone (PIN/USSD, handled only by the provider; never by this system) (FR-13.3, NFR-06.2).
   7. The provider sends a confirmation. The system verifies callback authenticity (FR-14.3, NFR-06.4) and checks the confirmed amount matches the initiated amount (NFR-06.4).
   8. On successful, authentic, non-overpaying confirmation, the system atomically records the payment, updates the balance, assigns a receipt number and marks the payment confirmed (FR-14.1, FR-14.2, NFR-04, FR-05, FR-06).
-  9. The system displays a confirmation to the payer; the payment appears in the Bursar's online payment list (FR-16.1).
+  9. The system displays an on-screen confirmation showing the pupil's name, the amount paid and the receipt number, and nothing else (DD-29); the payment appears in the Bursar's online payment list (FR-16.1).
 - **Alternative flows:**
   - **3a.** Admission number and phone number do not match a pupil: an error is shown; no other data is disclosed (FR-13.2, FR-13.4).
   - **4a.** The entered amount is greater than the outstanding balance: an error message is shown; the initiation is refused; nothing is recorded (FR-13.2, DD-03).
@@ -438,8 +438,7 @@ The diagram below is embedded in this document and links to the editable source.
 - **Alternative flows:**
   - **1a.** No fee configuration exists for the selected year and class: expected fees are zero; the report displays zero expected, actual payments received, and zero outstanding, with an empty per-pupil balance table (FR-09.1, DD-23).
   - **2a.** A class filter is applied: the report is computed for the selected class only (FR-09, FR-10).
-  - **3a.** Report generation approaches or exceeds the NFR-03 bound (p95 under 3 seconds at 1,000 pupils): flagged in verification as a performance defect (Should priority, NFR-03).
-  - **4a.** Automated reconciliation fails (report totals do not equal the sum of payment rows): the build is blocked until reconciled; no report is released with inconsistent figures (FR-09.3).
+  - **3a.** Report generation approaches or exceeds the NFR-03 bound (p95 under 3 seconds at 1,000 pupils): the system still completes and displays the report normally; the overrun is logged as a performance observation for the development team to investigate. NFR-03 is a measured target, not a runtime error, and the user sees no error message.
   - **5a.** The user requests PDF, Excel or CSV export, or scheduled delivery: refused; out of scope for v1 (DD-15).
 - **Postconditions:**
   - The report is shown on screen in a printable layout; no payment data or balances are changed by generating a report (FR-09).
@@ -505,11 +504,11 @@ Additionally, the following follow from project decisions and desk research (not
 
 ## 9. Open Questions
 
-None. Every question raised during review has been resolved; all decisions are recorded in §10 (DD-01 to DD-28).
+None. Every question raised during review has been resolved; all decisions are recorded in §10 (DD-01 to DD-29).
 
 ## 10. Design decisions
 
-DD-01 to DD-08 record the eight high-impact decisions taken by the product owner on 2026-11-15 (resolving the corresponding open questions). DD-09 to DD-23 record the sensible defaults adopted for the remaining open questions. DD-24 records the decision on the last open question (balances start at zero at launch). DD-25 to DD-28 record consistency fixes applied during the use case review. Requirements reference these as *(DD-n)*.
+DD-01 to DD-08 record the eight high-impact decisions taken by the product owner on 2026-11-15 (resolving the corresponding open questions). DD-09 to DD-23 record the sensible defaults adopted for the remaining open questions. DD-24 records the decision on the last open question (balances start at zero at launch). DD-25 to DD-28 record consistency fixes applied during the use case review. DD-29 records the payer confirmation screen decision for online payments. Requirements reference these as *(DD-n)*.
 
 | ID | Decision | Affected requirements |
 |---|---|---|
@@ -541,3 +540,4 @@ DD-01 to DD-08 record the eight high-impact decisions taken by the product owner
 | DD-26 | Authorised staff can change a pupil's class (for example at the start of a new academic year); payment history is preserved; each academic year's balance uses the class assigned in that year | FR-01, FR-03, FR-05 |
 | DD-27 | The audit log covers payment creation, payment corrections, fee configuration changes made after payments exist (FR-03.3), and online payment re-matches (FR-16.4); visibility remains Administrator-only | FR-03, FR-12, FR-16 |
 | DD-28 | The Administrator can view the review queue and online payment list but cannot review, match or disposition items; only the Bursar can | FR-15, FR-16, NFR-02 |
+| DD-29 | After a successful online payment, the payer sees an on-screen confirmation showing the pupil name, amount paid and receipt number, and nothing else; no SMS (out of scope) | FR-13, FR-14 |
